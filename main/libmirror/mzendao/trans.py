@@ -265,8 +265,8 @@ def __get_html_steps(defect_info, detected_version):
     html_steps = __wrap_lines_with_p_tags(steps)
     return html_steps
 
-# 增加了assignee_name,因为增加了指派人name
-def trans_sqa_to_zt_home(zt_pid, jira_json, assignee_name: str = None) -> dict:
+
+def trans_sqa_to_zt_home(zt_pid, jira_json: dict) -> dict:
     
     external_issue_link = mjira.field.get_external_issue(jira_json)
     zt_id = (
@@ -303,21 +303,11 @@ def trans_sqa_to_zt_home(zt_pid, jira_json, assignee_name: str = None) -> dict:
     else:
         html_steps = defect_info
 
-    # 校验指派人Name
-    if not assignee_name:
-        # 使用config中的默认值
-        default_assignee = get_db_manager()
-        if not default_assignee:
-            raise ValueError("Excel中未指定指派人，且config中也没有默认指派人")
-        assignee_name = default_assignee
-
-    print(f"DEBUG: 最终使用的指派人Name: {assignee_name}")
-
     return zt_id, {
         KEY.PRODUCT: zt_pid,
         KEY.STATUS: STATUS.ACTIVE,
         KEY.OPENED_BUILD: [OPENED_BUILD.TRUNK],
-        KEY.ASSIGNED_TO: assignee_name, # 使用传入的assignee_name
+        KEY.ASSIGNED_TO: ASSIGNEE,
         KEY.TYPE: TYPE.CODE_ERROR,
         KEY.TITLE: title,
         KEY.SEVERITY: priority,

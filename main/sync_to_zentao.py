@@ -33,8 +33,7 @@ def __download_jira_attachments(jira_info, jira_id):
     return assets_path_list
 
 
-# 增加了assignee_name,因为增加了指派人name
-def __sync_jira_to_zentao(jira_id, zt_pid, assignee_name):
+def __sync_jira_to_zentao(jira_id, zt_pid):
     try:
         # 获取Jira信息
         sync_result = ""
@@ -53,8 +52,8 @@ def __sync_jira_to_zentao(jira_id, zt_pid, assignee_name):
             return sync_fail, sync_result
         sony_jira_id = input_key_str
 
-        # 转换成Zt参数，传递assignee_name
-        zt_id, zt_params = mzendao.trans.trans_sqa_to_zt_home(zt_pid, jira_info, assignee_name)
+        # 转换成Zt参数
+        zt_id, zt_params = mzendao.trans.trans_sqa_to_zt_home(zt_pid, jira_info)
         if zt_id:
             sync_result = jira_id + " - 此票已存在禅道ID: " + zt_id
             return sync_fail, sync_result
@@ -102,26 +101,18 @@ if __name__ == "__main__":
     ws = wb.active
     
     # 处理
-    # 读取到D列指派人，写入到G列
-    for i, (row_data, row) in enumerate(zip(ws_data.iter_rows(min_row=2, max_col=4),
-                                            ws.iter_rows(min_row=2, max_col=7)), start=2):
-        jira_id = row_data[0].value  # A列
-        module_name = row_data[1].value # B列 模块名称
-        zt_pid = str(row_data[2].value)  # C列
-        assignee_name = row_data[3].value  # D列：指派人名字
+    for i, (row_data, row) in enumerate(zip(ws_data.iter_rows(min_row=2, max_col=5),
+                                            ws.iter_rows(min_row=2, max_col=5)), start=2):
+        jira_id = row_data[0].value  # 读取值
+        zt_pid = str(row_data[2].value)  # 读取值
     
         if not jira_id:
             break
-
-        # 如果指派人Name为空，则使用默认指派人
-        if not assignee_name:
-            assignee_name = mconfig.get_db_manager()  # 使用其他默认值
-
-        # 传递assignee_name
-        sync_flg, sync_result = __sync_jira_to_zentao(jira_id, zt_pid, assignee_name)
     
-        row[5].value = sync_flg # F列：同步结果
-        row[6].value = sync_result # G列：备注
+        sync_flg, sync_result = __sync_jira_to_zentao(jira_id, zt_pid)
+    
+        row[3].value = sync_flg
+        row[4].value = sync_result
     
     # 保存（保留原始公式）
     wb.save(file_path)
