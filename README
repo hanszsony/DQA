@@ -1,0 +1,49 @@
+# DQA票同步禅道: 
+
+1.处理流程
+    1.获取待提交禅道的JiraID和禅道对应的模块Code
+    2.下载Jira的附件和获取Bug信息
+    3.转换Bug信息成禅道的格式
+    4.使用API创建禅道并上传附件，API返回禅道ID
+    5.将生成的禅道ID更新到Jira中
+2.文件介绍
+    sync_to_zentao.exe             执行文件
+    ZenTao_Issues_To_Submit.xlsx   需要同步的Jira相关信息文件
+    .config                        运行所需信息的配置文件
+3. ZenTao_Issues_To_Submit.xlsx内容
+    输入：
+      A列：JIRA ID(格式:CNUXBTRACK-XXXX)，用于获取Jira信息
+      B列：禅道模块，单元格为数据校验，用于选择后匹配获取C列的值
+      C列：禅道模块Code，单元格为公式，禅道API使用Code值确定提交到哪个禅道模块
+    输出：
+      D列：同步结果，Success or Fail
+      E列：同步结果的备注信息
+    配置：
+      I/J列：用于禅道模块的数据校验和公式
+             如果添加新值请同时修改B列的数据校验
+4. .config内容
+     "issue_list_file_path" → ZenTao_Issues_To_Submit.xlsx的文件路径（路径分割要用"\\"）
+     "sony_jira_token"      → Jira的token（生成方式：Jira → profile → Personal Access Tokens → Create token）
+     "zt_url"               → 禅道URL
+     "zt_http_basic"        → 访问当贝的账号:密码（"dangbei:XXXXXXXX"）
+     "zt_username"          → 禅道账号
+     "zt_password"          → 禅道密码
+     "host_zt"              → 禅道URL
+     "db_manager"           → BUG指派给的人员
+     "trans_artifacts"      → *不要修改此值
+     "trans_descriptions"   → *不要修改此值
+     "host_sony"            → SonyJira网址域名
+5. Jira规范
+     禅道中的内容使用的是Jira的DefectInfo值
+     对照效果：
+         Jira：https://www.tool.sony.biz/tv-jira/browse/CNUXBTRACK-2808
+         禅道：https://otypm.dangbei.net/index.php?m=bug&f=view&bugID=2929
+     Jira按CNUXBTRACK-2808中内容格式如下，不然会出现内容不一致的问题
+         ***Procedure → [步骤]
+             [Initial Situation] → [初始情况]
+             [Operation/State] → [操作/状态]
+         [Symptom Details] → [结果]
+         [Expected Result] → [期望]
+         ***Environmental Condition → [环境]
+        
+      

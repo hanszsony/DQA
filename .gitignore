@@ -1,0 +1,6 @@
+/dist
+/spec
+/build
+/__pycache__
+
+*.config
